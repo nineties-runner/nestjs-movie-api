@@ -1,34 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { MoviesService } from './movies.service';
-import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+} from "@nestjs/common";
+import { MoviesService } from "./movies.service";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { UpdateMovieDto } from "./dto/update-movie.dto";
+import { CreateMovieDto } from "./dto/create-movie.dto";
 
-@Controller('movies')
+@Controller("movies")
 export class MoviesController {
-  constructor(private readonly moviesService: MoviesService) {}
+  constructor(private readonly apiService: MoviesService) {}
 
-  @Post()
-  create(@Body() createMovieDto: CreateMovieDto) {
-    return this.moviesService.create(createMovieDto);
+  @Post(``)
+  @UseInterceptors(
+    FileInterceptor("file", {
+      storage: diskStorage({
+        destination: "../../public/uploads/",
+      }),
+    })
+  )
+  create(
+    @Body() createMovieDto: CreateMovieDto,
+    @UploadedFile(new ParseFilePipe({ fileIsRequired: false })) file
+  ) {
+    file && (createMovieDto.imageUrl = `uploads/${file.filename}`);
+    return this.apiService.create(createMovieDto);
   }
 
-  @Get()
-  findAll() {
-    return this.moviesService.findAll();
+  @Get(``)
+  findMany(@Query("sort") sort: "desc" | "asc") {
+    return sort ? this.apiService.findAndSort(sort) : this.apiService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.moviesService.findOne(+id);
+  @Get(`:id`)
+  findOne(@Param("id") id: string) {
+    return this.apiService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
-    return this.moviesService.update(+id, updateMovieDto);
+  @Delete(`:id`)
+  remove(@Param("id") id: string) {
+    return this.apiService.delete(id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.moviesService.remove(+id);
+  @Patch(`:id`)
+  patch(@Param("id") id: string, @Body() updateMovieDto: UpdateMovieDto) {
+    return this.apiService.update(id, updateMovieDto);
+  }
+
+  @Get(`uploads/:name`)
+  getImage(@Param("name") name: string) {
+    return this.apiService.getImage(name);
   }
 }

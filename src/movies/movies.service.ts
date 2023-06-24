@@ -1,26 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
+import { Injectable } from "@nestjs/common";
+import { DatabaseService } from "../database/database.service";
+import { CreateMovieDto } from "./dto/create-movie.dto";
 
 @Injectable()
 export class MoviesService {
-  create(createMovieDto: CreateMovieDto) {
-    return 'This action adds a new movie';
-  }
+  constructor(private database: DatabaseService) {}
 
-  findAll() {
-    return `This action returns all movies`;
-  }
+  findAll = () => {
+    return this.database.movie.findMany();
+  };
 
-  findOne(id: number) {
-    return `This action returns a #${id} movie`;
-  }
+  findAndSort = (sort) => {
+    return this.database.movie.findMany({
+      orderBy: {
+        rating: sort,
+      },
+    });
+  };
 
-  update(id: number, updateMovieDto: UpdateMovieDto) {
-    return `This action updates a #${id} movie`;
-  }
+  findOne = (id) => {
+    return this.database.movie.findUnique({
+      where: { id },
+    });
+  };
 
-  remove(id: number) {
-    return `This action removes a #${id} movie`;
-  }
+  create = (data: CreateMovieDto) => {
+    return this.database.movie.create({
+      data,
+    });
+  };
+
+  delete = (id) => {
+    return this.database.movie.delete({
+      where: { id },
+    });
+  };
+
+  update = (id, body) => {
+    return this.database.movie.update({ where: { id }, data: body });
+  };
+
+  getImage = (name) => {
+    return true;
+  };
 }
