@@ -2,6 +2,7 @@
 
 Basic movie API based on Nest.js
 
+```bash
 Инструкция по запуску: 
 git clone https://github.com/nineties-runner/nestjs-movie-api
 npm i
@@ -17,3 +18,4 @@ POST /movies - добавляет новый фильм;
 GET /movies/{id} - получает информацию о фильме по его id;
 PUT /movies/{id} - обновляет информацию о фильме по его id;
 DELETE /movies/{id} - удаляет фильм по его id.
+```
