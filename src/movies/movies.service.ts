@@ -41,6 +41,6 @@ export class MoviesService {
   };
 
   getImage = (name) => {
-    return true;
+    return false;
   };
 }
